@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>🍱 Lunch Quest</title>
+  <style>
+    :root{
+      --bg1:#071529; --bg2:#102a4d; --panel:rgba(4,18,34,.86); --panel2:rgba(9,32,57,.92);
+      --gold:#f6c55a; --gold2:#9c6b1f; --blue:#35a6ff; --green:#54d66d; --red:#ff6b6b;
+      --text:#f5fbff; --muted:#b8c9dd; --line:rgba(246,197,90,.45);
+      --shadow:0 12px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0; color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif; background:#06101d; min-height:100vh;}
+    body::before{content:""; position:fixed; inset:0; z-index:-2; background:
+      radial-gradient(circle at 78% 10%, rgba(255,255,255,.28) 0 4%, transparent 5%),
+      radial-gradient(circle at 20% 14%, rgba(255,255,255,.18) 0 6%, transparent 7%),
+      linear-gradient(180deg, #0d4380 0%, #122e52 42%, #071529 100%);}
+    body::after{content:""; position:fixed; inset:auto 0 0 0; height:46vh; z-index:-1; background:
+      linear-gradient(135deg, transparent 0 12%, rgba(40,90,70,.75) 12% 18%, transparent 19%),
+      linear-gradient(45deg, transparent 0 28%, rgba(23,83,62,.75) 28% 34%, transparent 35%),
+      linear-gradient(180deg, transparent 0%, rgba(3,13,24,.94) 72%); opacity:.95;}
+    .app{width:min(430px,100%); margin:0 auto; padding:14px 12px 86px;}
+    .hero{position:sticky; top:0; z-index:5; padding:10px 0 12px; backdrop-filter:blur(8px);}
+    .title{display:flex; align-items:center; gap:10px; margin:0 0 8px; font-weight:900; font-size:32px; letter-spacing:.5px; text-shadow:3px 3px 0 #000, 0 0 12px rgba(53,166,255,.45)}
+    .subtitle{border:1px solid var(--line); color:#ffe39b; background:rgba(0,0,0,.36); border-radius:999px; padding:7px 12px; font-size:13px; text-align:center; box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+    .tabs{display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:10px}
+    .tab{border:1px solid var(--line); background:linear-gradient(180deg,#143963,#08203c); color:var(--text); border-radius:12px; padding:9px 4px; font-weight:800; font-size:12px; box-shadow:var(--shadow)}
+    .tab.active{background:linear-gradient(180deg,#1e72c8,#064aa0); color:#fff5c8; border-color:#ffd675}
+    .screen{display:none}.screen.active{display:block; animation:fade .18s ease-out}@keyframes fade{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:none}}
+    .panel{background:linear-gradient(180deg,var(--panel2),var(--panel)); border:1px solid var(--line); border-radius:18px; padding:14px; margin:12px 0; box-shadow:var(--shadow), inset 0 0 0 1px rgba(255,255,255,.05)}
+    .panel h2{margin:0 0 12px; font-size:16px; color:#ffe8a6; display:flex; justify-content:space-between; align-items:center}
+    .status{display:grid; grid-template-columns:86px 1fr; gap:13px; align-items:center}
+    .avatar{height:94px; border-radius:14px; display:grid; place-items:center; font-size:54px; background:linear-gradient(180deg,#163e62,#061b2f); border:1px solid var(--line); box-shadow:inset 0 0 18px rgba(53,166,255,.25)}
+    .lv{font-size:26px; font-weight:900; color:var(--gold)} .small{font-size:12px;color:var(--muted)}
+    .bar{height:15px; border-radius:999px; border:1px solid #7a5a22; background:#07111d; overflow:hidden; margin:7px 0}.fill{height:100%; width:0%; background:linear-gradient(90deg,#22b85d,#b2ff64); transition:.25s}
+    .kpis{display:grid; grid-template-columns:1fr 1fr; gap:9px}.kpi{border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:12px; background:rgba(0,0,0,.22)}
+    .kpi .label{font-size:12px;color:var(--muted)}.kpi .num{font-size:23px;font-weight:900;color:#fff;margin-top:4px}.coin{color:var(--gold)}
+    .form-row{margin:12px 0}.form-row label{display:block;font-weight:800;color:#ffe8a6;margin-bottom:7px}.input,select{width:100%; padding:14px 13px; border-radius:14px; border:1px solid var(--line); background:#071b31; color:white; font-size:18px; font-weight:800; outline:none} textarea.input{font-size:14px;font-weight:500;min-height:54px}
+    .quick{display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:8px}.chip{padding:10px 3px; border-radius:12px; border:1px solid rgba(246,197,90,.35); color:#ffe8a6; background:rgba(246,197,90,.08); font-weight:800}
+    .btn{width:100%; padding:15px; border:1px solid #ffe39b; color:white; border-radius:16px; background:linear-gradient(180deg,#1879e0,#073c92); font-size:18px; font-weight:900; box-shadow:0 8px 0 #031d45, var(--shadow)}.btn:active{transform:translateY(4px); box-shadow:0 4px 0 #031d45}
+    .quest{display:flex; gap:10px; align-items:center; padding:12px; border:1px solid rgba(255,255,255,.12); border-radius:14px; background:rgba(0,0,0,.2); margin:8px 0}.badge{font-size:30px}.quest b{color:#ffe8a6}.quest span{color:var(--muted); font-size:12px}
+    canvas{width:100%; height:180px; background:rgba(0,0,0,.16); border-radius:14px; border:1px solid rgba(255,255,255,.1)}
+    .calendar{display:grid; grid-template-columns:repeat(7,1fr); gap:5px}.day{aspect-ratio:1/1; border-radius:10px; display:grid; place-items:center; font-size:12px; border:1px solid rgba(255,255,255,.1); background:rgba(0,0,0,.18)}.good{color:#9cff9d}.mid{color:#ffe06a}.bad{color:#ff8f8f}.none{color:#71839a}.today{outline:2px solid var(--blue)}
+    .log{max-height:360px; overflow:auto}.log-item{display:grid; grid-template-columns:1fr auto; gap:8px; padding:12px; border-bottom:1px solid rgba(255,255,255,.1)}.log-item b{color:#ffe8a6}.delete{background:transparent;color:#ffb0b0;border:1px solid rgba(255,107,107,.5);border-radius:9px;padding:5px 8px}
+    .bottom-note{position:fixed; left:50%; bottom:12px; transform:translateX(-50%); width:min(406px,calc(100% - 24px)); border:1px solid var(--line); border-radius:18px; background:rgba(3,13,24,.88); padding:10px 12px; color:#ffe8a6; display:flex; gap:10px; align-items:center; box-shadow:var(--shadow); font-size:13px; z-index:6}.wizard{font-size:28px}
+    .danger{background:linear-gradient(180deg,#653030,#2b0b12);border-color:#ff9c9c}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mini{font-size:12px;color:var(--muted);line-height:1.6}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <h1 class="title">🍱 Lunch Quest</h1>
+      <div class="subtitle">今日のランチが、未来のあなたを強くする！</div>
+      <nav class="tabs">
+        <button class="tab active" data-tab="home">ホーム</button><button class="tab" data-tab="record">記録</button><button class="tab" data-tab="analysis">分析</button><button class="tab" data-tab="badges">実績</button>
+      </nav>
+    </header>
+
+    <section id="home" class="screen active">
+      <div class="panel status">
+        <div class="avatar">🧙‍♂️</div>
+        <div><div class="lv">Lv.<span id="level">1</span> <span class="small" id="rank">新米冒険者</span></div><div class="bar"><div class="fill" id="expFill"></div></div><div class="small">EXP <span id="expText">0/1000</span></div><div style="margin-top:8px">今月のゴールド残高 <b class="coin" id="monthGold">0G</b></div></div>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><div class="label">今月の合計</div><div class="num" id="monthTotal">0円</div></div>
+        <div class="kpi"><div class="label">月平均</div><div class="num" id="monthAvg">0円</div></div>
+        <div class="kpi"><div class="label">残り予算</div><div class="num coin" id="budgetLeft">0円</div></div>
+        <div class="kpi"><div class="label">連続記録</div><div class="num" id="streak">0日</div></div>
+      </div>
+      <div class="panel"><h2>今月のボス戦 <span id="bossText">0 / 30000円</span></h2><div class="bar"><div class="fill" id="budgetFill"></div></div><p class="mini" id="bossMsg">予算内クリアを目指そう。</p></div>
+      <div class="panel"><h2>今日のクエスト</h2><div id="todayQuest"></div></div>
+    </section>
+
+    <section id="record" class="screen">
+      <div class="panel"><h2>今日のランチを記録する 🪶</h2>
+        <div class="form-row"><label>日付</label><input class="input" type="date" id="date"></div>
+        <div class="form-row"><label>金額</label><input class="input" type="number" id="amount" placeholder="例：650" inputmode="numeric"><div class="quick"><button class="chip" data-amt="500">500</button><button class="chip" data-amt="650">650</button><button class="chip" data-amt="800">800</button><button class="chip" data-amt="1000">1000</button></div></div>
+        <div class="form-row"><label>カテゴリ</label><select id="category"><option>定食・弁当</option><option>コンビニ</option><option>外食</option><option>カフェ</option><option>持参・0円</option></select></div>
+        <div class="form-row"><label>メモ</label><textarea class="input" id="memo" placeholder="例：唐揚げ定食。満足度高め！"></textarea></div>
+        <button class="btn" id="saveBtn">記録する</button>
+      </div>
+      <div class="panel"><h2>最近の記録</h2><div class="log" id="log"></div></div>
+    </section>
+
+    <section id="analysis" class="screen">
+      <div class="panel"><h2>日別ランチ金額の変動</h2><canvas id="dailyChart" width="380" height="180"></canvas></div>
+      <div class="panel"><h2>週別合計金額</h2><canvas id="weeklyChart" width="380" height="180"></canvas></div>
+      <div class="panel"><h2>節約カレンダー</h2><div class="calendar" id="calendar"></div><p class="mini">🟢〜500円 / 🟡501〜800円 / 🔴801円〜 / ⚔️記録なし</p></div>
+    </section>
+
+    <section id="badges" class="screen">
+      <div class="panel"><h2>クエスト＆バッジ</h2><div id="badgesList"></div></div>
+      <div class="panel"><h2>設定</h2><div class="form-row"><label>月予算</label><input class="input" id="budget" type="number" inputmode="numeric"></div><div class="form-row"><label>目標ランチ単価</label><input class="input" id="target" type="number" inputmode="numeric"></div><div class="two"><button class="btn" id="settingBtn">保存</button><button class="btn danger" id="csvBtn">CSV出力</button></div></div>
+    </section>
+  </main>
+  <div class="bottom-note"><span class="wizard">🧙‍♂️</span><span id="message">素晴らしい記録じゃ！この調子でランチを制していこう！</span></div>
+<script>
+const KEY='lunchQuestMobileV1';
+let state=JSON.parse(localStorage.getItem(KEY)||'null')||{budget:30000,target:700,records:[]};
+const $=id=>document.getElementById(id); const yen=n=>(Math.round(n)||0).toLocaleString()+'円'; const todayISO=()=>new Date().toISOString().slice(0,10);
+$('date').value=todayISO(); $('budget').value=state.budget; $('target').value=state.target;
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab,.screen').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.tab).classList.add('active');render();});
+document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{$('amount').value=b.dataset.amt});
+function save(){localStorage.setItem(KEY,JSON.stringify(state));}
+$('saveBtn').onclick=()=>{const amount=Number($('amount').value); if(!amount && amount!==0){alert('金額を入力してください');return;} const rec={id:Date.now(),date:$('date').value||todayISO(),amount,category:$('category').value,memo:$('memo').value.trim()}; const i=state.records.findIndex(r=>r.date===rec.date); if(i>=0 && confirm('同じ日の記録があります。上書きしますか？')) state.records[i]=rec; else if(i<0) state.records.push(rec); else return; $('amount').value=''; $('memo').value=''; save(); render(); $('message').textContent=amount<=state.target?'ナイス節約！経験値とゴールドを獲得したぞ！':'今日は豪華ランチじゃな。明日は反撃クエストじゃ！';};
+$('settingBtn').onclick=()=>{state.budget=Number($('budget').value)||30000; state.target=Number($('target').value)||700; save(); render(); alert('設定を保存しました');};
+$('csvBtn').onclick=()=>{const rows=['日付,金額,カテゴリ,メモ',...state.records.sort((a,b)=>a.date.localeCompare(b.date)).map(r=>`${r.date},${r.amount},${r.category},"${(r.memo||'').replaceAll('"','""')}"`)]; const blob=new Blob([rows.join('\n')],{type:'text/csv'}); const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='lunch-quest.csv';a.click();};
+function monthRecords(){const ym=todayISO().slice(0,7);return state.records.filter(r=>r.date.slice(0,7)===ym).sort((a,b)=>a.date.localeCompare(b.date));}
+function calc(){const m=monthRecords(); const total=m.reduce((s,r)=>s+r.amount,0); const avg=m.length?total/m.length:0; const saved=m.reduce((s,r)=>s+Math.max(0,state.target-r.amount),0); const exp=state.records.length*80+Math.floor(saved/10); const level=Math.max(1,Math.floor(exp/1000)+1); const expIn=exp%1000; return {m,total,avg,saved,exp,level,expIn,left:state.budget-total};}
+function streak(){let set=new Set(state.records.map(r=>r.date)); let d=new Date(), s=0; for(;;){const iso=d.toISOString().slice(0,10); if(set.has(iso)){s++; d.setDate(d.getDate()-1)} else break;} return s;}
+function rank(lv){return lv>=30?'ランチマスター':lv>=20?'上級冒険者':lv>=10?'騎士':lv>=5?'ギルド員':'新米冒険者'}
+function render(){const c=calc(); $('level').textContent=c.level; $('rank').textContent=rank(c.level); $('expFill').style.width=(c.expIn/10)+'%'; $('expText').textContent=`${c.expIn}/1000`; $('monthGold').textContent=c.saved.toLocaleString()+'G'; $('monthTotal').textContent=yen(c.total); $('monthAvg').textContent=yen(c.avg); $('budgetLeft').textContent=yen(c.left); $('streak').textContent=streak()+'日'; $('bossText').textContent=`${c.total.toLocaleString()} / ${state.budget.toLocaleString()}円`; $('budgetFill').style.width=Math.min(100,c.total/state.budget*100)+'%'; $('bossMsg').textContent=c.left>=0?`ボス討伐まで残り ${yen(c.left)}。予算内で進行中！`:'予算オーバー！来月のリベンジクエストへ。';
+renderQuest(c); renderLog(); renderBadges(c); drawDaily(c.m); drawWeekly(c.m); renderCalendar(c.m);}
+function renderQuest(c){let q=[]; q.push(['⚔️','今日も記録する','記録したらEXP+80']); q.push(c.avg&&c.avg<=state.target?['🛡️','平均単価クリア','目標以内で進行中']:['🔥','平均単価を下げる','次は目標以下を狙おう']); q.push(c.saved>=3000?['💎','3000G獲得','かなり良いペース']:['🪙','ゴールド集め','目標以下の日を増やそう']); $('todayQuest').innerHTML=q.map(x=>`<div class="quest"><div class="badge">${x[0]}</div><div><b>${x[1]}</b><br><span>${x[2]}</span></div></div>`).join('');}
+function renderLog(){const arr=[...state.records].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,20); $('log').innerHTML=arr.length?arr.map(r=>`<div class="log-item"><div><b>${r.date}</b><br>${yen(r.amount)} / ${r.category}<br><span class="small">${r.memo||''}</span></div><button class="delete" onclick="delRec(${r.id})">削除</button></div>`).join(''):'まだ記録がありません。';}
+function delRec(id){state.records=state.records.filter(r=>r.id!==id); save(); render();}
+function renderBadges(c){const badges=[['🏆','10日連続記録',streak()>=10],['🥇','月平均700円以下',c.avg&&c.avg<=700],['💰','節約5000G達成',c.saved>=5000],['🐉','月予算ボス討伐',c.total>0&&c.total<=state.budget],['📜','30件記録',state.records.length>=30]]; $('badgesList').innerHTML=badges.map(b=>`<div class="quest"><div class="badge">${b[2]?b[0]:'🔒'}</div><div><b>${b[1]}</b><br><span>${b[2]?'獲得済み！':'未達成'}</span></div></div>`).join('');}
+function chartBase(canvas){const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height; ctx.clearRect(0,0,w,h); ctx.strokeStyle='rgba(255,255,255,.18)';ctx.lineWidth=1; for(let i=1;i<4;i++){ctx.beginPath();ctx.moveTo(32,h-i*h/4);ctx.lineTo(w-8,h-i*h/4);ctx.stroke();} return ctx;}
+function drawDaily(m){const cv=$('dailyChart'),ctx=chartBase(cv),w=cv.width,h=cv.height; if(!m.length){ctx.fillStyle='#b8c9dd';ctx.fillText('記録するとグラフが表示されます',80,90);return;} const max=Math.max(1000,...m.map(r=>r.amount)); const pts=m.map((r,i)=>[32+i*((w-50)/Math.max(1,m.length-1)),h-22-(r.amount/max)*(h-46)]); ctx.strokeStyle='#54c8ff';ctx.lineWidth=3;ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.stroke(); ctx.fillStyle='#ffe06a';pts.forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],4,0,7);ctx.fill();});}
+function drawWeekly(m){const cv=$('weeklyChart'),ctx=chartBase(cv),w=cv.width,h=cv.height; const weeks={}; m.forEach(r=>{const d=new Date(r.date); const key=Math.ceil(d.getDate()/7)+'週'; weeks[key]=(weeks[key]||0)+r.amount;}); const data=Object.entries(weeks); if(!data.length){ctx.fillStyle='#b8c9dd';ctx.fillText('記録するとグラフが表示されます',80,90);return;} const max=Math.max(...data.map(x=>x[1]),1000); const bw=(w-50)/data.length-8; data.forEach(([k,v],i)=>{const x=36+i*((w-50)/data.length), bh=(v/max)*(h-50); ctx.fillStyle='#2f9bff'; ctx.fillRect(x,h-22-bh,bw,bh); ctx.fillStyle='#ffe8a6';ctx.font='12px sans-serif';ctx.fillText(k,x,h-6);});}
+function renderCalendar(m){const map=Object.fromEntries(m.map(r=>[Number(r.date.slice(8,10)),r.amount])); const now=new Date(), y=now.getFullYear(), mo=now.getMonth(); const first=new Date(y,mo,1).getDay(), last=new Date(y,mo+1,0).getDate(); let html='日月火水木金土'.split('').map(d=>`<div class="day small">${d}</div>`).join(''); for(let i=0;i<first;i++)html+='<div></div>'; for(let d=1;d<=last;d++){const a=map[d]; const cls=a==null?'none':a<=500?'good':a<=800?'mid':'bad'; const icon=a==null?'⚔️':a<=500?'🟢':a<=800?'🟡':'🔴'; html+=`<div class="day ${cls} ${d===now.getDate()?'today':''}">${d}<br>${icon}</div>`;} $('calendar').innerHTML=html;}
+render();
+</script>
+</body>
+</html>
